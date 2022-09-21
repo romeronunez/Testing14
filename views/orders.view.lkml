@@ -45,6 +45,38 @@ view: orders {
     sql: ${TABLE}.user_id ;;
   }
 
+  filter: date_selector {
+    type: date
+  }
+
+  dimension: is_selected_month {
+    type: yesno
+    sql: {% condition date_selector %} ${created_month} {% endcondition %} ;;
+  }
+
+  dimension: is_previous_month {
+    type: yesno
+    sql: ${created_month} > date_add(-1, {% date_start date_selector %})
+      AND ${created_month} < date_add(-1, {% date_end date_selector %}) ;;
+  }
+
+  measure: count_selected_month {
+    type: count
+    filters: {
+      field: is_selected_month
+      value: "yes"
+    }
+  }
+
+  measure: count_previous_month {
+    type: count
+    filters: {
+      field: is_previous_month
+      value: "yes"
+    }
+  }
+
+
   measure: count {
     type: count
     drill_fields: [detail*]
